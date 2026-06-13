@@ -1,0 +1,4 @@
+name: eve_navigator
+desc: 跨星系导航插件，基于EVE宇宙图谱计算最优跳跃路线，支持模糊匹配
+version: v2.1
+author: Baizi

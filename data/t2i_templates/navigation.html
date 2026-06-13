@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0a0e14;
+      --card-bg: #141a24;
+      --border: #1e2a3a;
+      --accent: #5db8e8;
+      --accent-dim: #3880b0;
+      --text: #ccdae8;
+      --text-dim: #8899b0;
+      --text-bright: #eef2f8;
+      --danger: #e8606e;
+      --warning: #e8bc50;
+      --success: #4fc898;
+      --radius: 12px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* 优化文字渲染清晰度 */
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 17px;
+      line-height: 1.7;
+      letter-spacing: 0.015em;
+      padding: 36px 32px;
+      min-width: 480px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: #fff; font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(93, 184, 232, 0.2);
+    }
+    .header-info { flex: 1; min-width: 0; }
+    .header-title {
+      font-size: 20px; font-weight: 700; color: var(--text-bright);
+      letter-spacing: 0.4px;
+    }
+    .header-sub {
+      font-size: 14px; color: var(--text-dim); margin-top: 3px;
+    }
+
+    /* ── Route summary card ── */
+    .route-line {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 24px; font-weight: 700; color: var(--text-bright);
+      margin-bottom: 12px;
+    }
+    .route-line .arrow {
+      color: var(--accent); font-size: 20px; flex-shrink: 0;
+      font-weight: 600;
+    }
+    .route-line span {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .tag-row {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px;
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 16px;
+      font-size: 13px; font-weight: 500;
+      background: rgba(93,184,232,0.10); color: var(--accent);
+      border: 1px solid rgba(93,184,232,0.20);
+    }
+    .tag.warn { background: rgba(232,188,80,0.12); color: var(--warning); border-color: rgba(232,188,80,0.24); }
+    .tag.danger { background: rgba(232,96,110,0.12); color: var(--danger); border-color: rgba(232,96,110,0.24); }
+    .tag.success { background: rgba(79,200,152,0.12); color: var(--success); border-color: rgba(79,200,152,0.24); }
+
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 32px;
+    }
+    .stat-card {
+      flex: 1; min-width: 100px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px; font-weight: 700; color: var(--text-bright);
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 13px; color: var(--text-dim); margin-top: 5px;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      font-weight: 500;
+    }
+
+    /* ── Timeline / Route steps ── */
+    .section-title {
+      font-size: 15px; font-weight: 600; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 16px; padding-left: 2px;
+    }
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 12px; top: 4px; bottom: 4px;
+      width: 2px; background: var(--border); border-radius: 1px;
+    }
+    .step {
+      position: relative; margin-bottom: 18px;
+      padding: 14px 18px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step::before {
+      content: '';
+      position: absolute; left: -25px; top: 20px;
+      width: 10px; height: 10px;
+      border-radius: 50%; background: var(--accent-dim);
+      border: 2px solid var(--bg);
+      z-index: 1;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .step.start::before { background: var(--success); }
+    .step.end::before { background: var(--accent); box-shadow: 0 0 12px rgba(93,184,232,0.5), 0 0 0 1px var(--border); }
+    .step .step-idx {
+      font-size: 12px; color: var(--text-dim); font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .step .step-name {
+      font-size: 17px; font-weight: 600; color: var(--text-bright);
+      margin-bottom: 5px;
+    }
+    .step .step-meta {
+      font-size: 13px; color: var(--text-dim); display: flex; flex-wrap: wrap; gap: 12px;
+    }
+    .step .step-mode {
+      color: var(--accent); font-weight: 500;
+    }
+
+    /* ── Notices / Warnings ── */
+    .notice {
+      margin-top: 28px; padding: 14px 18px;
+      border-radius: var(--radius); font-size: 14px; line-height: 1.6;
+      border-left: 4px solid var(--warning);
+      background: rgba(232,188,80,0.06); color: var(--warning);
+    }
+    .notice.danger { border-left-color: var(--danger); background: rgba(232,96,110,0.06); color: var(--danger); }
+
+    /* ── Fallback: plain text ── */
+    .fallback-text {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px 28px;
+      white-space: pre-wrap; word-break: break-word;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+      font-size: 15px; line-height: 1.8; color: var(--text);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 28px; text-align: center;
+      font-size: 12px; color: var(--text-dim); opacity: 0.5;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+{% if data is mapping %}
+  {# ─── Structured navigation result ─── #}
+
+  {% set start = data.get("start") %}
+  {% set end = data.get("end") %}
+  {% set route = data.get("route", []) %}
+  {% set is_triglavian = data.get("mode") == "triglavian_black_ops" %}
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">
+      {% if is_triglavian %}⚡{% else %}✦{% endif %}
+    </div>
+    <div class="header-info">
+      <div class="header-title">
+        {% if is_triglavian %}三神裔黑隐导航{% else %}EVE 星系导航{% endif %}
+      </div>
+      <div class="header-sub">基于实时宇宙图谱 · 最优跳跃路线</div>
+    </div>
+  </div>
+
+  {# ── Route endpoint ── #}
+  {% set start_name = start.get("label") or start.get("name") or start %}
+  {% set end_name = end.get("label") or end.get("name") or end %}
+  {% if start_name is string and end_name is string %}
+  <div class="route-line">
+    <span>{{ start_name }}</span>
+    <span class="arrow">→</span>
+    <span>{{ end_name }}</span>
+  </div>
+  {% endif %}
+
+  {# ── Triglavian start info ── #}
+  {% if is_triglavian %}
+    {% set start_constellation = data.get("startConstellation") %}
+    {% if start_constellation is mapping %}
+      {% set constellation_name = start_constellation.get("name", "") %}
+      {% set constellation_label = start_constellation.get("label", "") %}
+      {% if constellation_name and constellation_label and constellation_label != constellation_name %}
+        {% set constellation_display = constellation_name ~ " / " ~ constellation_label %}
+      {% elif constellation_name %}
+        {% set constellation_display = constellation_name %}
+      {% elif constellation_label %}
+        {% set constellation_display = constellation_label %}
+      {% else %}
+        {% set constellation_display = "" %}
+      {% endif %}
+    {% else %}
+      {# Fallback: extract from route nodes #}
+      {% for node in route %}
+        {% if node.get("isTriglavianSystem") and node.get("triglavianConstellationName") %}
+          {% set constellation_display = node["triglavianConstellationName"] %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if constellation_display is defined and constellation_display %}
+    <div class="tag-row" style="margin-bottom: 12px;">
+      {% if data.get("autoSelectedStart") %}
+        <span class="tag">⚡ 自动起点</span>
+      {% endif %}
+      <span class="tag" style="background: rgba(93,184,232,0.15); border-color: rgba(93,184,232,0.30);">
+        三神裔星座 {{ constellation_display }}
+      </span>
+      {% if data.get("candidateStartCount") is not none %}
+        <span class="tag">候选起点 {{ data["candidateStartCount"] }} 个</span>
+      {% endif %}
+    </div>
+    {% endif %}
+  {% endif %}
+
+  {# ── Tags ── #}
+  <div class="tag-row">
+    {% if data.get("shipClass") %}
+      <span class="tag">🚀 {{ data["shipClass"] }}</span>
+    {% endif %}
+    {% if data.get("safetyStandardLabel") %}
+      <span class="tag">🛡 {{ data["safetyStandardLabel"] }}</span>
+    {% endif %}
+    {% if data.get("maxJumpLy") %}
+      <span class="tag">📏 最大 {{ data["maxJumpLy"] }} ly</span>
+    {% endif %}
+    {% if data.get("safetySatisfied") is sameas true %}
+      <span class="tag success">✓ 满足安全标准</span>
+    {% elif data.get("safetySatisfied") is sameas false %}
+      <span class="tag danger">✗ 未满足安全标准</span>
+    {% endif %}
+    {% if data.get("fallbackApplied") %}
+      <span class="tag warn">⚠ 回退路线</span>
+    {% endif %}
+  </div>
+
+  {# ── Stats ── #}
+  <div class="stats-grid">
+    {% if data.get("jumps") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ data["jumps"] }}</div>
+      <div class="stat-label">跳跃次数</div>
+    </div>
+    {% endif %}
+    {% if is_triglavian and data.get("blackOpsJumps") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ data["blackOpsJumps"] }}</div>
+      <div class="stat-label">黑隐跳跃</div>
+    </div>
+    {% endif %}
+    {% if data.get("stargateSteps") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ data["stargateSteps"] }}</div>
+      <div class="stat-label">星门段数</div>
+    </div>
+    {% endif %}
+    {% if data.get("jumpBridgeSteps") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ data["jumpBridgeSteps"] }}</div>
+      <div class="stat-label">跳桥段数</div>
+    </div>
+    {% endif %}
+    {% if data.get("totalDistanceLy") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ "%.1f"|format(data["totalDistanceLy"]|float) }}</div>
+      <div class="stat-label">跳跃距离 (ly)</div>
+    </div>
+    {% endif %}
+    {% if data.get("totalTravelDistanceLy") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ "%.1f"|format(data["totalTravelDistanceLy"]|float) }}</div>
+      <div class="stat-label">总旅行 (ly)</div>
+    </div>
+    {% endif %}
+    {% if data.get("directDistanceLy") is not none %}
+    <div class="stat-card">
+      <div class="stat-value">{{ "%.1f"|format(data["directDistanceLy"]|float) }}</div>
+      <div class="stat-label">直线距离 (ly)</div>
+    </div>
+    {% endif %}
+  </div>
+
+  {# ── Safety info ── #}
+  {% set preferred = data.get("preferredStops") %}
+  {% set secondary = data.get("secondaryStops") %}
+  {% set unsafe = data.get("unsafeStops") %}
+  {% if preferred is not none or secondary is not none or unsafe is not none %}
+  <div class="tag-row" style="margin-bottom: 20px;">
+    {% if preferred is not none %}<span class="tag success">优选 {{ preferred }}</span>{% endif %}
+    {% if secondary is not none %}<span class="tag warn">次级 {{ secondary }}</span>{% endif %}
+    {% if unsafe is not none %}<span class="tag danger">不安全 {{ unsafe }}</span>{% endif %}
+  </div>
+  {% endif %}
+
+  {# ── Route steps ── #}
+  {% if route %}
+    <div class="section-title">跳 跃 路 线</div>
+    <div class="timeline">
+      {% for node in route %}
+        {% set is_first = loop.first %}
+        {% set is_last = loop.last %}
+        {% set label = node.get("label") or node.get("name") or node %}
+        {% set mode = node.get("travelModeLabel") or "" %}
+        {% if not mode %}
+          {% set raw_mode = node.get("travelMode", "") %}
+          {% if raw_mode == "start" %}{% set mode = "起点" %}
+          {% elif raw_mode == "jump" %}{% set mode = "跳跃" %}
+          {% elif raw_mode == "stargate" %}{% set mode = "星门" %}
+          {% elif raw_mode == "jump_bridge" %}{% set mode = "跳桥" %}
+          {% endif %}
+        {% endif %}
+        {% set jump_ly = node.get("jumpLy") or node.get("legDistanceLy") %}
+        {% set sec = node.get("sec") %}
+        {% set region = node.get("regionName") %}
+        {% set safety = node.get("safety") %}
+        {% set infra = node.get("infrastructure") %}
+
+        <div class="step{% if is_first %} start{% elif is_last %} end{% endif %}">
+          <div class="step-idx">{{ loop.index }} · {{ mode }}</div>
+          <div class="step-name">{{ label }}</div>
+          <div class="step-meta">
+            {% if sec is not none %}
+              {% set sec_val = sec|float %}
+              <span style="color: {% if sec_val >= 0.5 %}#48b884{% elif sec_val > 0.0 %}#e5b84c{% else %}#e0556a{% endif %}">
+                安等 {{ "%.1f"|format(sec_val) }}
+              </span>
+            {% endif %}
+            {% if region %}<span>{{ region }}</span>{% endif %}
+            {% if jump_ly and jump_ly|float > 0 %}
+              <span>{{ "%.1f"|format(jump_ly|float) }} ly</span>
+            {% endif %}
+            {% if safety is mapping %}
+              {% if safety.get("label") %}<span>落点 {{ safety["label"] }}</span>{% endif %}
+            {% endif %}
+            {% if node.get("isTriglavianSystem") %}
+              <span style="color: var(--accent);">三神裔星系</span>
+            {% endif %}
+            {% if node.get("triglavianConstellationName") %}
+              <span style="color: var(--accent);">{{ node["triglavianConstellationName"] }}</span>
+            {% endif %}
+            {% if node.get("jumpBridgeStructureName") %}
+              <span>跳桥: {{ node["jumpBridgeStructureName"] }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# ── Notices ── #}
+  {% for key in ["fallbackMessage", "superRouteWarning"] %}
+    {% set notice = data.get(key) %}
+    {% if notice is string and notice %}
+    <div class="notice">{{ notice }}</div>
+    {% endif %}
+  {% endfor %}
+  {% set esi = data.get("esiWarnings") %}
+  {% if esi is iterable and esi is not string and esi %}
+  <div class="notice danger">{{ esi | join("；") }}</div>
+  {% elif esi is string and esi %}
+  <div class="notice danger">{{ esi }}</div>
+  {% endif %}
+
+{% elif data is iterable and data is not string %}
+  {# ─── List result ─── #}
+  <div class="header">
+    <div class="header-icon">✦</div>
+    <div class="header-info">
+      <div class="header-title">EVE 信息</div>
+      <div class="header-sub">查询结果</div>
+    </div>
+  </div>
+  <div class="timeline" style="padding-left: 0;">
+    <div class="timeline" style="padding-left: 0;">
+      {% for item in data %}
+      <div class="step"><div class="step-name">{{ item }}</div></div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% else %}
+  {# ─── String / fallback ─── #}
+  <div class="header">
+    <div class="header-icon">✦</div>
+    <div class="header-info">
+      <div class="header-title">EVE 导航</div>
+      <div class="header-sub">查询结果</div>
+    </div>
+  </div>
+  <div class="fallback-text">{{ data }}</div>
+{% endif %}
+
+<div class="footer">EVE Navigator · AstrBot</div>
+
+</body>
+</html>
